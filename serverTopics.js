@@ -1,6 +1,7 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const Parser = require('rss-parser');
+const bodyParser = require('body-parser');
 
 
 admin.initializeApp({
@@ -48,12 +49,12 @@ function sendMessage(title, body) {
 			body: body
 		},
 		android:{
-            notification:{
-                sound: "maybeoneday.mp3",
-                priority: "high",
-                icon: "humanpictos"
-            }
-        },
+			notification:{
+				sound: "maybeoneday.mp3",
+				priority: "high",
+				icon: "humanpictos"
+			}
+		},
 		token: registrationToken
 	})
 	.then((response) => {
@@ -64,28 +65,90 @@ function sendMessage(title, body) {
 	});
 }
 
+function subscribeToTopic(regToken, topic) {
+	admin.messaging().subscribeToTopic([regToken], topic)
+	.then(function(response) {
+    // See the MessagingTopicManagementResponse reference documentation
+    // for the contents of response.
+    console.log('Successfully subscribed to topic:', response);
+})
+	.catch(function(error) {
+		console.log('Error subscribing to topic:', error);
+	});
+
+}
+
+function unSubscribeToTopic(regToken, topic) {
+	admin.messaging().unsubscribeFromTopic([regToken], topic)
+	.then(function(response) {
+    // See the MessagingTopicManagementResponse reference documentation
+    // for the contents of response.
+    console.log('Successfully unsubscribed from topic:', response);
+})
+	.catch(function(error) {
+		console.log('Error unsubscribing from topic:', error);
+	});
+}
+
 
 
 setInterval(intervalFunc, 60000);
 
 const app = express();
+app.use(bodyParser.urlencoded());
+
+app.use(bodyParser.json());
+
 
 app.get('/', (req, res) => {
 	res.send('Hello from App Engine!');
 });
 
 app.get('/send', (req, res) => {
-	
+	admin
+	.messaging()
+	.send({
+		notification: {
+			title: "TEST",
+			body: "BODY"
+		},
+		android:{
+			notification:{
+				sound: "maybeoneday.mp3",
+				priority: "high",
+				icon: "humanpictos"
+			}
+		},
+		topic: "TEST"
+	})
+	.then((response) => {
+		console.log('Successfully sent message:', response);
+	})
+	.catch((error) => {
+		console.log('Error sending message:', error);
+	});
 	res.send('Send message!');
 });
 
-app.post('/send', (req, res) => {
+app.post('/subcsribeToTopic', (req, res) => {
 	const regToken = req.body.regToken;
+	const topic = req.body.rssUrl;
+	console.log(regToken);
+	console.log(topic);
+	subscribeToTopic(regToken, topic);
+	res.send("Subscribed")
+})
+
+app.post('/unSubsribeToTopic', (req, res) => {
+	const regToken = req.body.regToken;
+	const topic = req.body.rssUrl;
+	unSubscribeToTopic(regToken, topic);
+	res.send("Unsubscribed")
 })
 
 
 
-app.listen(8080, () => {
+app.listen(8080, '0.0.0.0', () => {
 	sendMessage('Liverpool v United', '1.70');
 	console.log(`Server listening on port 8080`);
 });
