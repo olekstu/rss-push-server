@@ -1,0 +1,4 @@
+cron:
+- description: "get latest bet"
+  url: /getLatest
+  schedule: every 3 minutes

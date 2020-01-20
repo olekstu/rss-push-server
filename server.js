@@ -17,27 +17,6 @@ const parser = new Parser();
 
 let lastBet = '';
 
-function intervalFunc() {
-
-	(async () => {
-
-		let feed = await parser.parseURL('https://bettin.gs/joaosaldanha/bets/feed');
-		const item = feed.items[0]; 		
-		const content = item.content;
-		const startIndex = content.indexOf('Odds');
-		const odds = content.substring(startIndex, startIndex + 28);
-		const bet = item.title;
-
-		if (bet !== lastBet) {
-			lastBet = bet;
-			sendMessage(bet, odds);
-
-		} else {			
-			console.log("NOT NEW TITLE");
-		}
-	})();
-
-}
 
 function sendMessage(title, body) {
 	admin
@@ -48,12 +27,12 @@ function sendMessage(title, body) {
 			body: body
 		},
 		android:{
-            notification:{
-                sound: "maybeoneday.mp3",
-                priority: "high",
-                icon: "humanpictos"
-            }
-        },
+			notification:{
+				sound: "maybeoneday.mp3",
+				priority: "high",
+				icon: "humanpictos"
+			}
+		},
 		token: registrationToken
 	})
 	.then((response) => {
@@ -65,17 +44,32 @@ function sendMessage(title, body) {
 }
 
 
-
-setInterval(intervalFunc, 60000);
-
 const app = express();
 
 app.get('/', (req, res) => {
 	res.send('Hello from App Engine!');
 });
 
+app.get('/getLatest', async (req, res) => {
+	let feed = await parser.parseURL('https://bettin.gs/joaosaldanha/bets/feed');
+	const item = feed.items[0]; 		
+	const content = item.content;
+	const startIndex = content.indexOf('Odds');
+	const odds = content.substring(startIndex, startIndex + 28);
+	const bet = item.title;
+
+	if (bet !== lastBet) {
+		lastBet = bet;
+		sendMessage(bet, odds);
+
+	} else {			
+		console.log("NOT NEW TITLE");
+	}
+
+	res.sendStatus(200);
+});
+
 app.get('/send', (req, res) => {
-	
 	res.send('Send message!');
 });
 
@@ -86,7 +80,6 @@ app.post('/send', (req, res) => {
 
 
 app.listen(8080, () => {
-	sendMessage('Liverpool v United', '1.70');
 	console.log(`Server listening on port 8080`);
 });
 
