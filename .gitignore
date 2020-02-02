@@ -1,3 +1,4 @@
+env_variables.yaml
 service-account-file.json
 node_modules/
 # Logs

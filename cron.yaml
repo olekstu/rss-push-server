@@ -1,4 +1,4 @@
 cron:
 - description: "get latest bet"
-  url: /getLatest
+  url: /getLatest/v2
   schedule: every 3 minutes
