@@ -94,6 +94,7 @@ app.post('/addUserToRssUrl', (req, res) => {
 
 
 app.get('/getLatest/v2', async (req, res) => {
+	console.log("GET LATEST");
 	const rssUrlListToPoll = await dao.getAllRssUrls();
 	rssUrlListToPoll.forEach(async rssUrlToPoll => {
 		const feed = await parser.parseURL(rssUrlToPoll.rss_url);
