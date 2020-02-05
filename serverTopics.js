@@ -64,6 +64,7 @@ function unSubscribeToTopic(regToken, topic) {
 const app = express();
 
 app.use((req, res, next) => {
+	console.log("INCOMING REQUESTS");
 	if (cryptr.decrypt(req.headers["x-api-key"]) === process.env.API_KEY) {
 		next();
 	} else {
