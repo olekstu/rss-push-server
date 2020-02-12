@@ -28,6 +28,7 @@ async function sendUpdatedTitleToUsers(title, rssUrl) {
 	const messages = allTokensToSendTo.map(token => ({
 		to: token,
 		sound: 'default',
+		title: "New RSS notification",
 		body: title,
 		data: { withSome: 'data' },
 	}));

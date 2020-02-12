@@ -31,7 +31,7 @@ async function getUrlsByUserId(userId) {
 	}
 
 	const res = await client.query(query);
-	return res.rows.map(row => row.rss_url);
+	return res.rows;
 }
 
 async function addRssUrl(rssUrl) {
@@ -89,8 +89,13 @@ async function deleteRssUrl(rssUrl) {
 		text: 'DELETE FROM RSSURLS WHERE RSS_URL = $1',
 		values: [rssUrl]
 	}
-	const res = await client.query(query);
-	return res;
+	try {
+		const res = await client.query(query);
+		return res;
+	}
+	catch (error) {
+		return null;
+	}
 }
 
 async function deleteRssUrlForUser(userId, rssUrl) {
